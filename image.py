@@ -1,31 +1,21 @@
-# ➤ AI Image Generator
-elif menu == "AI Image Generator":
-    st.subheader("🎨 AI Image Generator")
+from diffusers import StableDiffusionPipeline
+import torch
+import cv2
+from google.colab.patches import cv2_imshow
 
-    prompt = st.text_input("Enter image prompt")
+pipe = StableDiffusionPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5"
+)
 
-    if st.button("Generate Image"):
-        if prompt:
-            with st.spinner("Generating image... (first time may take time)"):
-                from diffusers import StableDiffusionPipeline
-                import torch
+pipe = pipe.to("cpu")
 
-                # Load model (cache to avoid reloading every time)
-                @st.cache_resource
-                def load_model():
-                    pipe = StableDiffusionPipeline.from_pretrained(
-                        "runwayml/stable-diffusion-v1-5"
-                    )
-                    return pipe.to("cpu")
+prompt = "A peaceful mountain sunrise with golden light reflecting on a lake, soft mist, highly detailed, 4K"
 
-                pipe = load_model()
+image = pipe(prompt).images[0]
 
-                image = pipe(prompt).images[0]
+image.save("sunrise.png")
 
-                st.image(image, caption="Generated Image", use_container_width=True)
+print("Image generated")
 
-                # Save option
-                image.save("generated.png")
-                st.success("Image generated and saved as generated.png")
-        else:
-            st.warning("Please enter a prompt")
+img = cv2.imread('sunrise.png')
+cv2_imshow(img)
